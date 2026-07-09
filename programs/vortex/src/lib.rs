@@ -63,6 +63,7 @@ pub struct Deposit<'info> {
     pub signer: Signer<'info>,
 
     /// CHECK: WTF
+    #[account(mut)]
     pub pool: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,

@@ -29,11 +29,9 @@ template Vortex(levels) {
     component hashers[levels];
 
     for (var i = 0; i < levels; i++) {
-        // Isolate each product into its own signal (each is degree-2)
         nodeTimesIndex[i] <== nodes[i] * pathIndices[i];
         elemTimesIndex[i] <== pathElements[i] * pathIndices[i];
 
-        // Now these are purely linear — no degree-3
         left[i]  <== nodes[i] - nodeTimesIndex[i] + elemTimesIndex[i];
         right[i] <== nodeTimesIndex[i] + pathElements[i] - elemTimesIndex[i];
 
@@ -44,6 +42,7 @@ template Vortex(levels) {
         nodes[i + 1] <== hashers[i].out;
     }
 
+    // Root check
     nodes[levels] === root;
 
     // Nullifier hash check

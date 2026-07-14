@@ -57,7 +57,9 @@ export interface ConvertedProof {
   proofA: number[]; // length 64
   proofB: number[]; // length 128
   proofC: number[]; // length 64
-  publicInputs: number[][]; // each length 32
+  root: number[];
+  nullifierHash: number[];
+  recipient: number[];
 }
 
 /** Load proof.json + public.json produced by `snarkjs groth16 prove` and
@@ -67,14 +69,42 @@ export function loadAndConvertProof(
   publicPath: string
 ): ConvertedProof {
   const proof: SnarkjsProof = JSON.parse(fs.readFileSync(proofPath, "utf8"));
-  const publicSignals: string[] = JSON.parse(
+
+  const publicSignals = JSON.parse(
     fs.readFileSync(publicPath, "utf8")
-  );
+  ) as unknown;
+
+  if (!Array.isArray(publicSignals)) {
+    throw new Error("public.json must contain an array");
+  }
+
+  if (
+    !publicSignals.every(
+      (signal): signal is string => typeof signal === "string"
+    )
+  ) {
+    throw new Error("Every entry in public.json must be a decimal string");
+  }
+
+  const PUBLIC_INPUT_COUNT = 3;
+
+  if (publicSignals.length !== PUBLIC_INPUT_COUNT) {
+    throw new Error(
+      `Expected ${PUBLIC_INPUT_COUNT} public signals ` +
+        `[root, nullifierHash, recipient], ` +
+        `received ${publicSignals.length}`
+    );
+  }
+
+  const [rootString, nullifierHashString, recipient] = publicSignals;
 
   return {
     proofA: g1BytesNegated(proof.pi_a), // negated — see g1BytesNegated
     proofB: g2Bytes(proof.pi_b),
     proofC: g1Bytes(proof.pi_c),
-    publicInputs: publicSignals.map(feBytes),
+
+    root: feBytes(rootString),
+    nullifierHash: feBytes(nullifierHashString),
+    recipient: feBytes(recipient),
   };
 }

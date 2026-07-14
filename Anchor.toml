@@ -6,13 +6,13 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-vortex = "7vhKNuB37GmurUQYBrT6SL2fX9Y3kCQgpANzbu1aCmjw"
+vortex = "6G3qPM3Rf4fmEgWRR8Mhv6822RJvrpuqf2aHB6QEzxe3"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

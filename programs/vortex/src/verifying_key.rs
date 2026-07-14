@@ -1,7 +1,7 @@
 use groth16_solana::groth16::Groth16Verifyingkey;
 
 pub const VERIFYINGKEY: Groth16Verifyingkey = Groth16Verifyingkey {
-    nr_pubinputs: 3,
+    nr_pubinputs: 4,
 
     vk_alpha_g1: [
         45u8, 77u8, 154u8, 167u8, 227u8, 2u8, 217u8, 223u8, 65u8, 116u8, 157u8, 85u8, 7u8, 148u8,
@@ -73,5 +73,13 @@ pub const VERIFYINGKEY: Groth16Verifyingkey = Groth16Verifyingkey {
             133u8, 235u8, 189u8, 175u8, 134u8, 142u8, 208u8, 242u8, 227u8, 133u8, 199u8, 157u8,
             240u8,
         ],
+        [
+            39u8, 124u8, 97u8, 94u8, 66u8, 165u8, 41u8, 87u8, 63u8, 148u8, 56u8, 159u8, 221u8,
+            74u8, 130u8, 11u8, 187u8, 133u8, 83u8, 187u8, 197u8, 149u8, 124u8, 58u8, 134u8, 70u8,
+            245u8, 93u8, 190u8, 58u8, 88u8, 38u8, 26u8, 26u8, 190u8, 77u8, 145u8, 189u8, 235u8,
+            32u8, 99u8, 105u8, 135u8, 69u8, 50u8, 228u8, 36u8, 94u8, 190u8, 215u8, 90u8, 82u8,
+            10u8, 215u8, 109u8, 0u8, 2u8, 113u8, 9u8, 50u8, 169u8, 134u8, 65u8, 219u8,
+        ],
     ],
 };
+

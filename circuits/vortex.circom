@@ -5,6 +5,9 @@ template Vortex(levels) {
     signal input root;
     signal input nullifierHash;
 
+    // To Prevent validators from transaction hijacking.
+    signal input recipient;
+
     // private
     signal input secret;
     signal input nullifier;
@@ -51,4 +54,4 @@ template Vortex(levels) {
     nh.out === nullifierHash;
 }
 
-component main {public [root, nullifierHash]} = Vortex(20);
+component main {public [root, nullifierHash, recipient]} = Vortex(20);

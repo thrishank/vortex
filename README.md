@@ -8,10 +8,11 @@
 | --------------- | ---------------------------- |
 | `root`          | The current Merkle tree root |
 | `nullifierHash` | `hash(nullifier)`            |
+| `recipient`     | The withdrawal recipient     |
 
 The nullifier is a unique identifier generated for each commitment, used to prevent the same commitment from being spent twice.
 
-In the Solana program, a PDA account is derived with seeds `[b"nullifier", nullifierHash]`. If that account already exists, the nullifier has already been used and the transaction is rejected.
+In the current Solana program, a PDA account is derived with seeds `[b"nullifer", nullifierHash]`. If that account already exists, the nullifier has already been used and the transaction is rejected.
 
 ### Private Inputs
 
@@ -129,7 +130,8 @@ Create an `input.json` with the circuit's public and private inputs:
   "pathElements": [],
   "pathIndices": [],
   "root": "",
-  "nullifierHash": ""
+  "nullifierHash": "",
+  "recipient": ""
 }
 ```
 

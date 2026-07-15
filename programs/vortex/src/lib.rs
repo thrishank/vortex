@@ -8,12 +8,15 @@ use crate::verifying_key::VERIFYINGKEY;
 
 declare_id!("6G3qPM3Rf4fmEgWRR8Mhv6822RJvrpuqf2aHB6QEzxe3");
 
+// mod spl;
 mod tree;
 mod verifying_key;
 
 pub const ADMIN: Pubkey = pubkey!("thrbabBvANwvKdV34GdrFUDXB6YMsksdfmiKj2ZUV3m");
+pub const FEE_ACCOUNT: Pubkey = pubkey!("DoQ47WTYzvgCNXwVK1Uf3urpXqa8maE7hJFd1xNLYUp2");
 pub const TREE_DEPTH: usize = 20;
-pub const ZERO_VALUE: [u8; 32] = [0u8; 32];
+
+pub const PROTOCOL_FEE: u64 = 1_000_000; // 0.001 SOL
 
 #[program]
 pub mod vortex {
@@ -42,17 +45,17 @@ pub mod vortex {
         }
         tree.root_history = [[0u8; 32]; 100];
 
-        tree.root = ZERO_VALUE;
-        tree.root_history[0] = ZERO_VALUE;
+        let root = Poseidon::zero_bytes()[TREE_DEPTH];
+        tree.root = root;
+        tree.root_history[0] = root;
 
-        ctx.accounts.pool.deposit_amount = deposit_amount;
         ctx.accounts.pool.bump = ctx.bumps.pool;
+        ctx.accounts.pool.deposit_amount = deposit_amount;
 
         Ok(())
     }
 
     pub fn deposit(ctx: Context<Deposit>, commitment: [u8; 32]) -> Result<()> {
-        // TODO: add fee on deposit a global config account
         system_program::transfer(
             CpiContext::new(
                 ctx.accounts.system_program.to_account_info(),
@@ -64,10 +67,22 @@ pub mod vortex {
             ctx.accounts.pool.deposit_amount,
         )?;
 
+        system_program::transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.to_account_info(),
+                system_program::Transfer {
+                    from: ctx.accounts.signer.to_account_info(),
+                    to: ctx.accounts.fee_account.to_account_info(),
+                },
+            ),
+            PROTOCOL_FEE,
+        )?;
+
         let leaf_index = ctx.accounts.tree.load_mut().unwrap().insert(commitment)?;
 
         emit!(DepositEvent {
             commitment,
+            tree: ctx.accounts.tree.key(),
             leaf_index,
         });
 
@@ -88,14 +103,11 @@ pub mod vortex {
             ErrorCode::UnknownRoot
         );
 
-        let public_inputs: [[u8; 32]; 3] = [root, nullifier_hash, recipient];
-        let arr: &[[u8; 32]; 3] = public_inputs
-            .as_slice()
-            .try_into()
-            .expect("expected exactly 3 public inputs");
+        let public_inputs: &[[u8; 32]; 3] = &[root, nullifier_hash, recipient];
 
-        let mut verifier = Groth16Verifier::new(&proof_a, &proof_b, &proof_c, arr, &VERIFYINGKEY)
-            .map_err(|_| error!(ErrorCode::InvalidProof))?;
+        let mut verifier =
+            Groth16Verifier::new(&proof_a, &proof_b, &proof_c, public_inputs, &VERIFYINGKEY)
+                .map_err(|_| error!(ErrorCode::InvalidProof))?;
 
         verifier
             .verify()
@@ -162,6 +174,12 @@ pub struct Deposit<'info> {
 
     #[account(
         mut,
+        address = FEE_ACCOUNT
+    )]
+    pub fee_account: SystemAccount<'info>,
+
+    #[account(
+        mut,
         seeds = [b"tree", pool.deposit_amount.to_le_bytes().as_ref()],
         bump = tree.load()?.bump
     )]
@@ -221,6 +239,7 @@ pub struct NullifierAccount {
 #[event]
 pub struct DepositEvent {
     pub commitment: [u8; 32],
+    pub tree: Pubkey,
     pub leaf_index: u32,
 }
 

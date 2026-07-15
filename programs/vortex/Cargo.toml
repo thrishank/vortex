@@ -15,13 +15,12 @@ no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
 idl-build = ["anchor-lang/idl-build"]
+# idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 
 [dependencies]
 anchor-lang = "0.31.1"
-bytemuck = { version = "1.20.0", features = ["derive", "min_const_generics"] }
 groth16-solana = "0.2.0"
-light-poseidon = "0.4.0"
-ark-bn254 = "0.5.0"
-ark-ff = "0.5.0"
 light-hasher = "6.0.1"
+bytemuck = { version = "1.20.0", features = ["derive", "min_const_generics"] }
+# anchor-spl = "0.31.1"
